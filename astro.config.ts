@@ -1,17 +1,13 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
+import { Page } from "puppeteer";
+import pdf from "astro-pdf";
 
-import pdf from 'astro-pdf';
-
-/**
- * @param {import("puppeteer").Page} page
- */
-async function applyPagedJs(page) {
+async function applyPagedJs(page: Page): Promise<void> {
   page.on("console", (message) => {
-    console[message.type()]("[BROWSER] %s", message.text());
+    console.log("[BROWSER] %s", message.text());
   });
-  /** @type {"__pagedjs_render_complete__"} */
-  const propertyName = "__pagedjs_render_complete__";
+  const propertyName = "__pagedjs_render_complete__" as const;
   await page.evaluate(
     ({ propertyName }) => {
       window[propertyName] = false;
@@ -43,5 +39,5 @@ export default defineConfig({
       launch: { dumpio: true },
       pages: { "/index.html": true },
     }),
-  ]
+  ],
 });

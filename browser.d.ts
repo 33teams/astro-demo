@@ -1,8 +1,6 @@
-interface Console {
-  // allow arbitrary console methods
-  [key: string]: typeof Console["log"];
-}
-
+/**
+ * Enrich browser window with PagedJS-related names
+ */
 interface Window {
   __pagedjs_render_complete__?: boolean;
   PagedConfig?: {
