@@ -1,7 +1,12 @@
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import type { AstroIntegration } from "astro";
 import pdf from "astro-pdf";
 import type { PagesFunction, PagesMap } from "astro-pdf";
 import type { Page } from "puppeteer";
+
+const pagedPolyfill = join(dirname(fileURLToPath(import.meta.url)), "node_modules", "pagedjs", "dist", "paged.polyfill.min.js");
 
 async function applyPagedJs(page: Page): Promise<void> {
   page.on("console", (message) => {
@@ -13,7 +18,6 @@ async function applyPagedJs(page: Page): Promise<void> {
       window[propertyName] = false;
       window.PagedConfig = {
         auto: true,
-
         after() {
           console.debug("render complete");
           window[propertyName] = true;
@@ -22,9 +26,7 @@ async function applyPagedJs(page: Page): Promise<void> {
     },
     { propertyName },
   );
-  await page.addScriptTag({
-    url: "https://unpkg.com/pagedjs@0.4.3/dist/paged.polyfill.min.js",
-  });
+  await page.addScriptTag({ path: pagedPolyfill });
   await page.waitForFunction(
     ({ propertyName }) => window[propertyName] === true,
     { polling: 500 },
