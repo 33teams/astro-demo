@@ -1,6 +1,7 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { preview } from "astro";
 import type { AstroIntegration } from "astro";
 import pdf from "astro-pdf";
 import type { PagesFunction, PagesMap } from "astro-pdf";
@@ -44,6 +45,13 @@ export default function pagedPdf(pages: PagesFunction | PagesMap): AstroIntegrat
     },
     launch: { dumpio: true },
     pages,
+    async server(config) {
+      const previewServer = await preview({ logLevel: "debug", root: fileURLToPath(config.root) });
+      return {
+        close: () => previewServer.stop(),
+        url: new URL(`http://${previewServer.host ?? "localhost"}:${previewServer.port}`),
+      };
+    },
   });
 }
 
