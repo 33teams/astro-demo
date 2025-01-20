@@ -12,20 +12,32 @@ const pagedPolyfill = join(dirname(fileURLToPath(import.meta.url)), "node_module
 async function applyPagedJs(page: Page): Promise<void> {
   const propertyName = "__pagedjs_render_complete__" as const;
   logEvents(page);
+  await page.evaluate(({ propertyName }) => {
+    window.PagedConfig = { auto: false };
+    window[propertyName] = false;
+  }, { propertyName });
+  await page.addScriptTag({ path: pagedPolyfill });
   await page.evaluate(
-    ({ propertyName }) => {
-      window[propertyName] = false;
-      window.PagedConfig = {
-        after() {
-          console.debug("render complete");
-          window[propertyName] = true;
-        },
-        auto: true,
-      };
+    async ({ propertyName }) => {
+      class Handler extends window.Paged.Handler {
+        afterRendered(pages: Node[]) {
+          console.info(`rendered ${pages.length} pages`);
+        }
+      }
+      window.Paged.registerHandlers(Handler);
+      const previewer = new window.Paged.Previewer();
+      try {
+        await previewer.preview();
+        console.info("render complete");
+      } catch (err) {
+        console.error(err);
+        console.info("render failed");
+      } finally {
+        window[propertyName] = true;
+      }
     },
     { propertyName },
   );
-  await page.addScriptTag({ path: pagedPolyfill });
   await page.waitForFunction(
     ({ propertyName }) => window[propertyName] === true,
     { polling: 500 },
