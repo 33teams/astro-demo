@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "astro": "^5.1.2",
-    "astro-pdf": "^1.5.0",
+    "astro-pdf": "^1.7.0",
     "pagedjs": "^0.5.0-beta.2"
   }
 }
