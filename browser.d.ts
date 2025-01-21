@@ -3,7 +3,12 @@ interface Settings {
   maxChars?: number;
 }
 
-interface Chunker {}
+namespace Paged {
+  interface Chunker {}
+  interface Sheet {}
+}
+
+type CssNode = import("css-tree").CssNode;
 
 interface Handler {
   // region: Previewer
@@ -14,8 +19,13 @@ interface Handler {
   beforeParsed(content: DocumentFragment);
   afterParsed(parsed: DocumentFragment);
   beforePageLayout(page: Node);
-  afterPageLayout(pageElement: Element, page: Node, breakToken: string);
+  afterPageLayout(pageElement: Element, page: Node, breakToken: string | undefined);
   afterRendered(pages: Node[]);
+  // endregion
+  // region: Polisher
+  beforeTreeParse(text: string, sheet: CssNode);
+  beforeTreeWalk(ast: CssNode);
+  afterTreeWalk(ast: CssNode, sheet: Paged.Sheet);
   // endregion
 }
 
@@ -24,7 +34,7 @@ interface HandlerClass {
 }
 
 interface PagedConfiguration {
-  after?: (done?: Chunker) => void | Promise<void>;
+  after?: (done?: Paged.Chunker) => void | Promise<void>;
   auto?: boolean;
   before?: () => void | Promise<void>;
   content?: DocumentFragment;
@@ -43,6 +53,7 @@ interface Previewer {
 interface Window {
   __pagedjs_render_complete__?: boolean;
   PagedConfig?: Partial<PagedConfiguration>;
+  PagedPolyfill: EventEmitter & Previewer;
   Paged: {
     Handler: HandlerClass;
     Previewer: new(options?: Settings) => Previewer;

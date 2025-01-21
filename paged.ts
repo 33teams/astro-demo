@@ -25,9 +25,8 @@ async function applyPagedJs(page: Page): Promise<void> {
         }
       }
       window.Paged.registerHandlers(Handler);
-      const previewer = new window.Paged.Previewer();
       try {
-        await previewer.preview();
+        await window.PagedPolyfill.preview();
         console.info("render complete");
       } catch (err) {
         console.error(err);
