@@ -51,7 +51,7 @@ interface Previewer {
  * Enrich browser window with PagedJS-related names
  */
 interface Window {
-  __pagedjs_render_complete__?: boolean;
+  __pagedjs_render_complete__?: boolean | null;
   PagedConfig?: Partial<PagedConfiguration>;
   PagedPolyfill: EventEmitter & Previewer;
   Paged: {
