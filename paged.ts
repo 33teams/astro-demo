@@ -6,7 +6,7 @@ import pdf from "astro-pdf";
 import type { PagesFunction, PagesMap } from "astro-pdf";
 import type { Page } from "puppeteer";
 
-async function applyPagedJs(page: Page): Promise<void> {
+async function applyPagedJs(page: Page, pagedVersion: string): Promise<void> {
   const propertyName = "__pagedjs_render_complete__" as const;
   logEvents(page);
   await page.evaluate(
@@ -18,7 +18,7 @@ async function applyPagedJs(page: Page): Promise<void> {
   );
   // TODO could we resolve this locally? `import.meta.resolve` isn't supported by Vite yet
   await page.addScriptTag({
-    url: "https://unpkg.com/pagedjs@0.5.0-beta.2/dist/paged.polyfill.min.js",
+    url: `https://unpkg.com/pagedjs@${pagedVersion}/dist/paged.polyfill.min.js`,
   });
   await page.evaluate(
     async ({ propertyName }) => {
@@ -52,10 +52,11 @@ async function applyPagedJs(page: Page): Promise<void> {
 
 export default function pagedPdf(
   pages: PagesFunction | PagesMap,
+  pagedVersion: string = "0.5.0-beta.2",
 ): AstroIntegration {
   return pdf({
     baseOptions: {
-      callback: applyPagedJs,
+      callback: (page) => applyPagedJs(page, pagedVersion),
       pdf: {
         displayHeaderFooter: false,
         margin: undefined,

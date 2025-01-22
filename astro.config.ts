@@ -1,3 +1,4 @@
+import tailwind from "@astrojs/tailwind";
 import { defineConfig } from "astro/config";
 
 import pagedPdf from "./paged";
@@ -6,5 +7,6 @@ import pagedPdf from "./paged";
 export default defineConfig({
   integrations: [
     pagedPdf({ "/index.html": true }),
+    tailwind({ applyBaseStyles: false }),
   ],
 });
